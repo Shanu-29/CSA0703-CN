@@ -1,0 +1,63 @@
+# Q1 — Error Detection & Correction: Catch the Corrupted Message
+
+## What this program does
+This Python program simulates sending short text messages over a "noisy" 
+communication channel and checks whether the message got corrupted during 
+transmission, using two different error-detection methods: **parity bit** 
+and **checksum**.
+
+## How it works
+1. Each message (e.g. "HELLO") is converted into binary (8 bits per character).
+2. A parity bit is calculated for the original message.
+3. A random bit in the message is flipped to simulate noise/corruption 
+   during transmission.
+4. The corrupted message is checked against the original using:
+   - **Parity check** — compares the number of 1-bits before and after.
+   - **Checksum check** — compares the sum of character codes before and after.
+5. The program prints whether each check detected the error or not.
+
+## What is parity?
+A parity bit is one extra bit added to a message that keeps track of 
+whether the total number of 1s in the message is even or odd. If even one 
+bit gets flipped during transmission, the count of 1s changes, so the 
+parity bit no longer matches — and the receiver knows something went 
+wrong. It's simple and fast, but it only reliably catches an **odd** 
+number of bit errors — if two bits flip at once, they can cancel out and 
+the parity check won't notice.
+
+## What is a checksum?
+A checksum adds up the numeric (ASCII) values of every character in the 
+message and sends that total along with the message. The receiver 
+recalculates the sum and compares it to the one that was sent. If they 
+don't match, the message was altered. Checksums catch a wider range of 
+errors than parity because they depend on the actual values of the 
+characters, not just a single even/odd count.
+
+## Results from my test run
+I tested 5 messages, each with one random bit flipped:
+
+| Message   | Parity Check    | Checksum Check   |
+|-----------|-----------------|-------------------|
+| HELLO     | ERROR DETECTED  | ERROR DETECTED    |
+| NETWORK   | ERROR DETECTED  | ERROR DETECTED    |
+| PYTHON3   | ERROR DETECTED  | ERROR DETECTED    |
+| DATA101   | ERROR DETECTED  | ERROR DETECTED    |
+| PACKET!   | ERROR DETECTED  | ERROR DETECTED    |
+
+## Which method worked better?
+In this run, both methods caught every single-bit error, because 
+flipping even one bit always changes both the parity and the checksum. 
+However, parity is known to be weaker in general — it can miss errors 
+where an *even* number of bits flip at once (the changes cancel each 
+other out), while a checksum is much less likely to miss this since it 
+depends on the actual character values, not just a 1s/0s count. So while 
+they performed equally here, checksum is the more reliable method overall 
+for real-world noisy channels.
+
+## Files in this folder
+- `error_detection.py` — the Python program
+- `output_log.png` / screenshot — program output
+- `README.md` — this file
+
+## How to run it
+python3 error_detection.py
