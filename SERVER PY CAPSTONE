@@ -1,0 +1,90 @@
+import socket
+import threading
+
+# Student Result Database
+results = {
+    "CS001": {"name": "Anu", "marks": 85, "grade": "A"},
+    "CS002": {"name": "Rahul", "marks": 78, "grade": "B+"},
+    "CS003": {"name": "Meena", "marks": 92, "grade": "A+"},
+    "CS004": {"name": "Arun", "marks": 67, "grade": "B"},
+    "CS005": {"name": "Divya", "marks": 88, "grade": "A"},
+    "CS006": {"name": "Kiran", "marks": 73, "grade": "B"},
+    "CS007": {"name": "Priya", "marks": 95, "grade": "A+"},
+    "CS008": {"name": "Vijay", "marks": 61, "grade": "C"}
+}
+
+HOST = "0.0.0.0"
+PORT = 5000
+
+
+# Function to handle each client
+def handle_client(client_socket, address):
+    print(f"Client connected: {address}")
+
+    try:
+        # Receive roll number from client
+        roll_number = client_socket.recv(1024).decode().strip().upper()
+
+        print(f"Roll number received: {roll_number}")
+
+        # Check whether roll number exists
+        if roll_number in results:
+            student = results[roll_number]
+
+            response = (
+                "\nRESULT FOUND\n"
+                "--------------------\n"
+                f"Roll Number : {roll_number}\n"
+                f"Name        : {student['name']}\n"
+                f"Marks       : {student['marks']}\n"
+                f"Grade       : {student['grade']}\n"
+            )
+
+        else:
+            response = (
+                "\nERROR\n"
+                "--------------------\n"
+                f"No result found for roll number: {roll_number}\n"
+            )
+
+        # Send response to client
+        client_socket.send(response.encode())
+
+    except Exception as e:
+        print("Error:", e)
+
+    finally:
+        client_socket.close()
+        print(f"Client disconnected: {address}")
+
+
+# Create TCP socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Allow socket address reuse
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+# Bind socket to host and port
+server_socket.bind((HOST, PORT))
+
+# Listen for incoming connections
+server_socket.listen(10)
+
+print("=" * 45)
+print("       UNIVERSITY RESULT QUERY SERVER")
+print("=" * 45)
+print(f"Server running on port {PORT}")
+print("Waiting for student queries...\n")
+
+
+# Continuously accept clients
+while True:
+    client_socket, address = server_socket.accept()
+
+    # Create a new thread for each client
+    client_thread = threading.Thread(
+        target=handle_client,
+        args=(client_socket, address)
+    )
+
+    client_thread.start()
