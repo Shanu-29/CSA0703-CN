@@ -1,0 +1,29 @@
+import socket
+
+HOST = "127.0.0.1"
+PORT = 5000
+
+# Create TCP socket
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+try:
+    # Connect to server
+    client_socket.connect((HOST, PORT))
+
+    # Get roll number from user
+    roll_number = input("Enter student roll number: ")
+
+    # Send roll number to server
+    client_socket.send(roll_number.encode())
+
+    # Receive response from server
+    response = client_socket.recv(4096).decode()
+
+    # Display result
+    print(response)
+
+finally:
+    # Close connection
+    client_socket.close()
+
+input("Press any key to continue . . .")
